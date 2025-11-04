@@ -1,0 +1,533 @@
+{
+  "info": {
+    "name": "Wolfram Math & Science Service",
+    "description": "API collection for the Wolfram Math & Science Service providing mathematical problem solving, educational content generation, and health monitoring.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "wolfram-math-service"
+  },
+  "item": [
+    {
+      "name": "Root",
+      "item": [
+        {
+          "name": "Get Service Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Get basic service information and available endpoints."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Basic Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health/",
+              "host": ["{{base_url}}"],
+              "path": ["health", ""]
+            },
+            "description": "Perform a basic health check to verify the service is running."
+          },
+          "response": []
+        },
+        {
+          "name": "Detailed Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health/detailed",
+              "host": ["{{base_url}}"],
+              "path": ["health", "detailed"]
+            },
+            "description": "Get detailed health information including system metrics and process information."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Math",
+      "item": [
+        {
+          "name": "Solve Math Problem",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Solve the equation: 2x + 3 = 7\",\n  \"show_steps\": true,\n  \"student_level\": \"high_school\",\n  \"include_educational\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/math/solve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "math", "solve"]
+            },
+            "description": "Solve a mathematical problem with optional step-by-step solutions and educational content."
+          },
+          "response": []
+        },
+        {
+          "name": "Solve Math Problem - Advanced Calculus",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Find the derivative of f(x) = x^3 + 2x^2 - 5x + 1\",\n  \"show_steps\": true,\n  \"student_level\": \"undergraduate\",\n  \"include_educational\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/math/solve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "math", "solve"]
+            },
+            "description": "Example of solving a calculus problem with educational content."
+          },
+          "response": []
+        },
+        {
+          "name": "Solve Math Problem - Linear Algebra",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Solve the system: 2x + y = 5, x - y = 1\",\n  \"show_steps\": true,\n  \"student_level\": \"college\",\n  \"include_educational\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/math/solve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "math", "solve"]
+            },
+            "description": "Example of solving a linear algebra system."
+          },
+          "response": []
+        },
+        {
+          "name": "Solve From Image",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "type": "text",
+                "value": "multipart/form-data"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "show_steps",
+                  "value": "true",
+                  "type": "text"
+                },
+                {
+                  "key": "student_level",
+                  "value": "undergraduate",
+                  "type": "text"
+                },
+                {
+                  "key": "include_educational",
+                  "value": "true",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/math/solve-image",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "math", "solve-image"]
+            },
+            "description": "Solve a mathematical problem from an uploaded image containing handwritten or printed math."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Plot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "expression",
+                  "value": "sin(x)",
+                  "type": "text"
+                },
+                {
+                  "key": "variable",
+                  "value": "x",
+                  "type": "text"
+                },
+                {
+                  "key": "range_min",
+                  "value": "-10",
+                  "type": "text"
+                },
+                {
+                  "key": "range_max",
+                  "value": "10",
+                  "type": "text"
+                },
+                {
+                  "key": "plot_type",
+                  "value": "Plot",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/math/plot",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "math", "plot"]
+            },
+            "description": "Create a mathematical plot of a function."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Plot - Parametric",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "expression",
+                  "value": "{cos(t), sin(t)}",
+                  "type": "text"
+                },
+                {
+                  "key": "variable",
+                  "value": "t",
+                  "type": "text"
+                },
+                {
+                  "key": "range_min",
+                  "value": "0",
+                  "type": "text"
+                },
+                {
+                  "key": "range_max",
+                  "value": "6.28",
+                  "type": "text"
+                },
+                {
+                  "key": "plot_type",
+                  "value": "ParametricPlot",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/math/plot",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "math", "plot"]
+            },
+            "description": "Create a parametric plot example (circle)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Educational",
+      "item": [
+        {
+          "name": "Generate Flashcards",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"problem\": \"Solve for x: 2x + 5 = 17\",\n  \"solution\": \"2x + 5 = 17\\n2x = 12\\nx = 6\",\n  \"concepts\": [\"linear equations\", \"isolation method\"],\n  \"difficulty\": \"beginner\",\n  \"count\": 3\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/educational/flashcards",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "educational", "flashcards"]
+            },
+            "description": "Generate flashcards from a problem and its solution."
+          },
+          "response": []
+        },
+        {
+          "name": "Export Flashcards",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flashcards\": [\n    {\n      \"question\": \"Solve for x: 2x + 5 = 17\",\n      \"answer\": \"x = 6\",\n      \"difficulty\": \"beginner\",\n      \"concept\": \"linear equations\"\n    }\n  ],\n  \"format_type\": \"anki\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/educational/flashcards/export",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "educational", "flashcards", "export"]
+            },
+            "description": "Export flashcards in various formats (anki, csv, json)."
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Quiz",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topic\": \"Calculus Fundamentals\",\n  \"concepts\": [\"derivatives\", \"limits\", \"continuity\"],\n  \"difficulty\": \"intermediate\",\n  \"question_count\": 5,\n  \"question_types\": [\"multiple_choice\", \"true_false\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/educational/quiz",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "educational", "quiz"]
+            },
+            "description": "Generate a quiz on a mathematical topic."
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Quiz Answers",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quiz_id\": \"quiz_123\",\n  \"answers\": {\n    \"1\": \"A\",\n    \"2\": \"B\",\n    \"3\": \"C\",\n    \"4\": \"A\",\n    \"5\": \"B\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/educational/quiz/{{quiz_id}}/submit",
+              "host": ["{{base_url}}"],
+              "path": [
+                "api",
+                "v1",
+                "educational",
+                "quiz",
+                "{{quiz_id}}",
+                "submit"
+              ]
+            },
+            "description": "Submit answers for a quiz and get grading results."
+          },
+          "response": []
+        },
+        {
+          "name": "Explain Concept",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"concept\": \"derivative\",\n  \"context\": \"in the context of calculus\",\n  \"examples_count\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/educational/explain/concept",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "educational", "explain", "concept"]
+            },
+            "description": "Generate a detailed explanation of a mathematical concept with examples."
+          },
+          "response": []
+        },
+        {
+          "name": "Explain Concept - Vector Spaces",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"concept\": \"vector space\",\n  \"context\": \"linear algebra\",\n  \"examples_count\": 3\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/educational/explain/concept",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "educational", "explain", "concept"]
+            },
+            "description": "Example explanation of vector spaces with multiple examples."
+          },
+          "response": []
+        },
+        {
+          "name": "Explain Visual",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "mathematical_object",
+                  "value": "Möbius strip",
+                  "type": "text"
+                },
+                {
+                  "key": "include_construction",
+                  "value": "true",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/educational/explain/visual",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "educational", "explain", "visual"]
+            },
+            "description": "Generate a visual description of a mathematical object."
+          },
+          "response": []
+        },
+        {
+          "name": "Generate Practice Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "topic",
+                  "value": "Trigonometry",
+                  "type": "text"
+                },
+                {
+                  "key": "duration_minutes",
+                  "value": "45",
+                  "type": "text"
+                },
+                {
+                  "key": "difficulty",
+                  "value": "intermediate",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/educational/practice-session",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "educational", "practice-session"]
+            },
+            "description": "Generate a comprehensive practice session with flashcards, quizzes, and review materials."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set base URL if not already set",
+          "if (!pm.environment.get(\"base_url\")) {",
+          "    pm.environment.set(\"base_url\", \"http://localhost:8000\");",
+          "}",
+          "",
+          "// Generate a random quiz ID for testing",
+          "if (!pm.environment.get(\"quiz_id\")) {",
+          "    pm.environment.set(\"quiz_id\", \"quiz_\" + Math.random().toString(36).substring(2, 15));",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "quiz_id",
+      "value": "quiz_test_123",
+      "type": "string"
+    }
+  ]
+}
