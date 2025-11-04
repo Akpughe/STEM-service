@@ -376,15 +376,21 @@ async def _call_wolfram_api(
         async with WolframFullResultsClient() as client:
             # Convert format string to list for full results API
             format_types = [format, "image"] if format != "image" else ["image"]
-            return await client.query(query, format_types=format_types, **params)
+            # Remove format_types from params if it exists to avoid duplicate argument error
+            api_params = {k: v for k, v in params.items() if k != 'format_types'}
+            return await client.query(query, format_types=format_types, **api_params)
 
     elif api_type == "show_steps":
         async with WolframShowStepsClient() as client:
-            return await client.solve(query, format_type=format, **params)
+            # Remove format_type from params if it exists to avoid duplicate argument error
+            api_params = {k: v for k, v in params.items() if k != 'format_type'}
+            return await client.solve(query, format_type=format, **api_params)
 
     elif api_type == "language_eval":
         async with WolframLanguageEvalClient() as client:
-            return await client.evaluate(query, output_format=format, **params)
+            # Remove output_format from params if it exists to avoid duplicate argument error
+            api_params = {k: v for k, v in params.items() if k != 'output_format'}
+            return await client.evaluate(query, output_format=format, **api_params)
 
     else:
         raise ValueError(f"Unknown API type: {api_type}")
