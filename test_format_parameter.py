@@ -363,7 +363,7 @@ async def test_all_problems():
     print("Checking API health...")
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{BASE_URL}/health", timeout=10.0)
+            response = await client.get(f"{BASE_URL}/health/", timeout=10.0)
             health = response.json()
             print(f"✓ API is healthy: {health}")
             print()
