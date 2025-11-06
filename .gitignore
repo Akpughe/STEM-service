@@ -191,4 +191,5 @@ htmlcov/
 # For example: uploaded images, temporary files, etc.
 
 # Test output folders
+# answers/
 answers/
