@@ -189,3 +189,7 @@ htmlcov/
 # Application specific
 # Add any application-specific files that shouldn't be committed
 # For example: uploaded images, temporary files, etc.
+
+# Test output folders
+# answers/
+answers/

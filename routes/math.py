@@ -24,6 +24,7 @@ class MathQuery(BaseModel):
     show_steps: bool = Field(default=True, description="Show step-by-step solution")
     student_level: str = Field(default="undergraduate", description="Student education level")
     include_educational: bool = Field(default=True, description="Include educational content")
+    format: str = Field(default="plaintext", description="Output format for mathematical expressions (plaintext, latex, mathml, image)")
 
 
 class MathResponse(BaseModel):
@@ -78,7 +79,8 @@ async def solve_math_problem(query_data: MathQuery):
         wolfram_result = await _call_wolfram_api(
             api_type.value,
             processed_query,
-            api_params
+            api_params,
+            query_data.format
         )
 
         # Check if Wolfram failed and use GPT fallback for complex queries
@@ -107,7 +109,7 @@ async def solve_math_problem(query_data: MathQuery):
         normalized_result = _normalize_wolfram_result(wolfram_result, api_type.value)
 
         # Check if step-by-step solutions are available and fetch them
-        steps = await _fetch_steps_if_available(wolfram_result, normalized_result, processed_query, query_data.query)
+        steps = await _fetch_steps_if_available(wolfram_result, normalized_result, processed_query, query_data.query, query_data.format)
 
         # Add steps to normalized result
         if steps:
@@ -153,7 +155,8 @@ async def solve_from_image(
     file: UploadFile = File(...),
     show_steps: bool = Form(default=True),
     student_level: str = Form(default="undergraduate"),
-    include_educational: bool = Form(default=True)
+    include_educational: bool = Form(default=True),
+    format: str = Form(default="plaintext")
 ):
     """Solve mathematical problem from uploaded image."""
     try:
@@ -188,7 +191,8 @@ async def solve_from_image(
             query=extracted_query,
             show_steps=show_steps,
             student_level=student_level,
-            include_educational=include_educational
+            include_educational=include_educational,
+            format=format
         )
         
         return await solve_math_problem(query_data)
@@ -280,7 +284,7 @@ def _normalize_wolfram_result(wolfram_result: dict, api_type: str) -> dict:
         return wolfram_result
 
 
-async def _fetch_steps_if_available(wolfram_result: dict, normalized_result: dict, processed_query: str, original_query: str) -> Optional[List[dict]]:
+async def _fetch_steps_if_available(wolfram_result: dict, normalized_result: dict, processed_query: str, original_query: str, format: str = "plaintext") -> Optional[List[dict]]:
     """Check if step-by-step solutions are available and fetch them.
 
     Args:
@@ -288,6 +292,7 @@ async def _fetch_steps_if_available(wolfram_result: dict, normalized_result: dic
         normalized_result: Normalized result from _normalize_wolfram_result
         processed_query: The processed/formatted query used for the main API call
         original_query: The original user query
+        format: Output format for mathematical expressions
 
     Returns:
         List of steps if available, None otherwise
@@ -313,7 +318,7 @@ async def _fetch_steps_if_available(wolfram_result: dict, normalized_result: dic
             logger.info("Step-by-step solutions available, fetching them")
             # Use original query for step fetching, not the processed/formatted one
             async with WolframShowStepsClient() as client:
-                steps_result = await client.solve(original_query, show_steps=True)
+                steps_result = await client.solve(original_query, format_type=format, show_steps=True)
                 steps = steps_result.get("steps")
                 if steps:
                     return steps
@@ -349,7 +354,8 @@ async def _fetch_steps_if_available(wolfram_result: dict, normalized_result: dic
 async def _call_wolfram_api(
     api_type: str,
     query: str,
-    params: dict
+    params: dict,
+    format: str = "plaintext"
 ) -> dict:
     """Call appropriate Wolfram API.
 
@@ -357,6 +363,7 @@ async def _call_wolfram_api(
         api_type: Type of API to call
         query: Processed query
         params: API parameters
+        format: Output format for mathematical expressions
 
     Returns:
         API result
@@ -367,15 +374,23 @@ async def _call_wolfram_api(
 
     elif api_type == "full_results":
         async with WolframFullResultsClient() as client:
-            return await client.query(query, **params)
+            # Convert format string to list for full results API
+            format_types = [format, "image"] if format != "image" else ["image"]
+            # Remove format_types from params if it exists to avoid duplicate argument error
+            api_params = {k: v for k, v in params.items() if k != 'format_types'}
+            return await client.query(query, format_types=format_types, **api_params)
 
     elif api_type == "show_steps":
         async with WolframShowStepsClient() as client:
-            return await client.solve(query, **params)
+            # Remove format_type from params if it exists to avoid duplicate argument error
+            api_params = {k: v for k, v in params.items() if k != 'format_type'}
+            return await client.solve(query, format_type=format, **api_params)
 
     elif api_type == "language_eval":
         async with WolframLanguageEvalClient() as client:
-            return await client.evaluate(query, **params)
+            # Remove output_format from params if it exists to avoid duplicate argument error
+            api_params = {k: v for k, v in params.items() if k != 'output_format'}
+            return await client.evaluate(query, output_format=format, **api_params)
 
     else:
         raise ValueError(f"Unknown API type: {api_type}")
