@@ -3,16 +3,16 @@ from typing import Dict, Any, List, Optional
 import structlog
 import json
 
-from api.openai import GPT5Client
+from api.groq import GroqClient
 
 logger = structlog.get_logger()
 
 
 class ResultEnhancer:
     """Enhance Wolfram results with educational content."""
-    
+
     def __init__(self):
-        self.gpt5_client = GPT5Client()
+        self.groq_client = GroqClient()
         
     async def enhance_result(
         self,
@@ -33,7 +33,7 @@ class ResultEnhancer:
             Enhanced result
         """
         # Get basic enhancement
-        enhancement = await self.gpt5_client.enhance_wolfram_result(
+        enhancement = await self.groq_client.enhance_wolfram_result(
             wolfram_result,
             original_query,
             student_level
@@ -105,7 +105,7 @@ class ResultEnhancer:
         try:
             # Generate summary with better error handling
             try:
-                summary = await self.gpt5_client.complete(messages, temperature=0.5, max_completion_tokens=150)
+                summary = await self.groq_client.complete(messages, temperature=0.5, max_completion_tokens=150)
                 content["summary"] = summary.strip() if summary else ""
             except Exception as e:
                 logger.warning("Failed to generate summary", error=str(e))
@@ -191,7 +191,7 @@ class ResultEnhancer:
         ]
         
         try:
-            response = await self.gpt5_client.complete(messages, temperature=0.5)
+            response = await self.groq_client.complete(messages, temperature=0.5)
             insights = json.loads(response)
             return insights[:3]
         except:
@@ -219,7 +219,7 @@ class ResultEnhancer:
         ]
         
         try:
-            response = await self.gpt5_client.complete(messages, temperature=0.5)
+            response = await self.groq_client.complete(messages, temperature=0.5)
             mistakes = json.loads(response)
             return mistakes[:3]
         except:
@@ -277,7 +277,7 @@ class ResultEnhancer:
         ]
         
         try:
-            response = await self.gpt5_client.complete(messages, temperature=0.7)
+            response = await self.groq_client.complete(messages, temperature=0.7)
             applications = json.loads(response)
             return applications[:2]
         except:
@@ -317,13 +317,13 @@ class ResultEnhancer:
         ]
         
         try:
-            response = await self.gpt5_client.complete(messages, temperature=0.8)
+            response = await self.groq_client.complete(messages, temperature=0.8)
             problems = json.loads(response)
-            
+
             # Add problem numbers
             for i, problem in enumerate(problems):
                 problem["number"] = i + 1
-                
+
             return problems[:3]
         except Exception as e:
             logger.error("Failed to generate practice problems", error=str(e))

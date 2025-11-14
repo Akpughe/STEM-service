@@ -43,6 +43,17 @@ class Settings(BaseSettings):
         default=4096,
         description="Maximum completion tokens for OpenAI responses"
     )
+
+    # Groq Configuration
+    groq_api_key: str = Field(..., description="Groq API key")
+    groq_model: str = Field(
+        default="openai/gpt-oss-120b",
+        description="Groq model to use (openai/gpt-oss-120b for math reasoning)"
+    )
+    groq_max_completion_tokens: int = Field(
+        default=8192,
+        description="Maximum completion tokens for Groq responses"
+    )
     
     # Redis Configuration
     redis_url: str = Field(

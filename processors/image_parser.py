@@ -5,16 +5,20 @@ import structlog
 from PIL import Image
 import pytesseract
 
-from api.openai import GPT5Client
+from api.groq import GroqClient
 
 logger = structlog.get_logger()
 
 
 class ImageParser:
-    """Parse mathematical content from images."""
-    
+    """Parse mathematical content from images.
+
+    Note: openai/gpt-oss-120b does not have vision capabilities.
+    This parser will primarily use OCR for image extraction.
+    """
+
     def __init__(self):
-        self.gpt5_client = GPT5Client()
+        self.groq_client = GroqClient()
         
     async def parse_image(
         self,
@@ -40,33 +44,22 @@ class ImageParser:
         }
         
         try:
-            # First try GPT-5 vision
-            logger.info("Attempting to parse image with GPT-5 vision")
-            gpt5_result = await self.gpt5_client.parse_image_to_math(image_data)
-            
-            if gpt5_result["success"]:
+            # Note: openai/gpt-oss-120b doesn't have vision capabilities
+            # Using OCR as primary method
+            logger.info("Extracting text from image using OCR")
+            ocr_result = self._ocr_extract(image_data)
+
+            if ocr_result["success"]:
                 result["success"] = True
-                result["content"] = gpt5_result["extracted_content"]
-                result["content_type"] = gpt5_result["type"]
-                result["confidence"] = 0.95  # High confidence for GPT-5
-                result["method"] = "gpt5_vision"
-                
+                result["content"] = ocr_result["text"]
+                result["content_type"] = "unknown"
+                result["confidence"] = 0.75  # OCR confidence
+                result["method"] = "ocr"
+
                 # Post-process the content
                 result["content"] = self._post_process_content(result["content"])
-                
-            elif use_ocr_fallback:
-                # Fallback to OCR
-                logger.info("Falling back to OCR")
-                ocr_result = self._ocr_extract(image_data)
-                
-                if ocr_result["success"]:
-                    result["success"] = True
-                    result["content"] = ocr_result["text"]
-                    result["content_type"] = "unknown"
-                    result["confidence"] = 0.6  # Lower confidence for OCR
-                    result["method"] = "ocr"
-                else:
-                    result["error"] = "Both GPT-5 and OCR failed"
+            else:
+                result["error"] = "OCR extraction failed"
                     
         except Exception as e:
             logger.error("Image parsing failed", error=str(e))
@@ -188,26 +181,20 @@ class ImageParser:
         Returns:
             Extracted diagram elements
         """
-        # Use GPT-5 with specific prompt for diagrams
-        prompt = """Analyze this diagram and extract:
-        1. Type of diagram (circuit, graph, flowchart, etc.)
-        2. All components/elements with their values and connections
-        3. Any labels or annotations
-        4. The overall structure or topology
-        
-        For circuits: List all components (resistors, capacitors, etc.) with values
-        For graphs: Extract axes labels, function curves, data points
-        For diagrams: Identify all shapes, connections, and text"""
-        
-        result = await self.gpt5_client.parse_image_to_math(image_data, prompt)
-        
-        if result["success"]:
+        # Note: openai/gpt-oss-120b doesn't support vision
+        # Using OCR-based extraction for diagrams
+        logger.warning("Diagram extraction with openai/gpt-oss-120b limited to OCR")
+
+        # Extract text using OCR
+        ocr_result = self._ocr_extract(image_data)
+
+        if ocr_result["success"]:
             # Parse the response to structure diagram elements
-            return self._structure_diagram_elements(result["extracted_content"])
+            return self._structure_diagram_elements(ocr_result["text"])
         else:
             return {
                 "success": False,
-                "error": result.get("error", "Failed to extract diagram elements")
+                "error": "Failed to extract diagram elements via OCR. Vision model required for better results."
             }
             
     def _structure_diagram_elements(self, content: str) -> Dict[str, Any]:

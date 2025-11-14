@@ -10,7 +10,7 @@ from api.wolfram import (
     WolframShowStepsClient,
     WolframLanguageEvalClient
 )
-from api.openai import GPT5Client
+from api.groq import GroqClient
 from processors import QueryClassifier, ImageParser, ResultEnhancer
 
 logger = structlog.get_logger()
@@ -83,26 +83,26 @@ async def solve_math_problem(query_data: MathQuery):
             query_data.format
         )
 
-        # Check if Wolfram failed and use GPT fallback for complex queries
+        # Check if Wolfram failed and use Groq fallback for complex queries
         if not wolfram_result.get("success") and not wolfram_result.get("pods"):
-            logger.info("Wolfram API returned empty result, trying GPT fallback")
-            gpt_client = GPT5Client()
-            gpt_result = await gpt_client.solve_math_problem(
+            logger.info("Wolfram API returned empty result, trying Groq fallback with openai/gpt-oss-120b")
+            groq_client = GroqClient()
+            groq_result = await groq_client.solve_math_problem(
                 query_data.query,
                 student_level=query_data.student_level,
                 show_steps=query_data.show_steps
             )
-            
-            # Return GPT result directly if Wolfram failed
-            if gpt_result.get("success"):
+
+            # Return Groq result directly if Wolfram failed
+            if groq_result.get("success"):
                 return MathResponse(
                     success=True,
                     query=query_data.query,
-                    result=gpt_result,
-                    explanation=gpt_result.get("explanation"),
-                    steps=gpt_result.get("steps"),
-                    educational_content=gpt_result.get("educational_content"),
-                    visualizations=gpt_result.get("visualizations")
+                    result=groq_result,
+                    explanation=groq_result.get("explanation"),
+                    steps=groq_result.get("steps"),
+                    educational_content=groq_result.get("educational_content"),
+                    visualizations=groq_result.get("visualizations")
                 )
 
         # Normalize the result format
