@@ -262,16 +262,37 @@ def _normalize_wolfram_result(wolfram_result: dict, api_type: str) -> dict:
             "error": wolfram_result.get("error")
         }
 
-        # Extract final answer from Result pod
+        # Extract final answer and visualizations from pods
+        # Wolfram uses different pod IDs for different query types.
+        # Priority order (most specific to least specific):
+        # - "Result" for general calculations
+        # - "Solution" for equations
+        # - "ExpandedForm" for derivatives/simplifications (clean answer)
+        # - "Value" for evaluations
+        # - "DecimalApproximation" for numerical results
+        # - "Input" for fallback (contains full equation, less clean)
+        answer_pod_ids_priority = ["Result", "Solution", "ExpandedForm", "Value", "DecimalApproximation", "Input"]
+
         pods = wolfram_result.get("pods", [])
-        for pod in pods:
-            if pod.get("id") == "Result":
+
+        # Create a dictionary of pods by ID for easy lookup
+        pods_by_id = {pod.get("id"): pod for pod in pods}
+
+        # Extract final answer by checking pod IDs in priority order
+        for pod_id in answer_pod_ids_priority:
+            if pod_id in pods_by_id:
+                pod = pods_by_id[pod_id]
                 subpods = pod.get("subpods", [])
                 if subpods:
-                    normalized["final_answer"] = subpods[0].get("plaintext")
+                    plaintext = subpods[0].get("plaintext")
+                    if plaintext:
+                        normalized["final_answer"] = plaintext
+                        break  # Found answer, stop searching
 
-            # Extract visualizations
-            elif "plot" in pod.get("id", "").lower():
+        # Extract visualizations from all pods
+        for pod in pods:
+            pod_id = pod.get("id", "")
+            if "plot" in pod_id.lower():
                 for subpod in pod.get("subpods", []):
                     if "img" in subpod:
                         normalized["visualizations"].append({

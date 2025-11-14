@@ -7,7 +7,7 @@ This guide explains how to deploy the STEM Service API to Railway.
 ### Prerequisites
 - Railway account (sign up at [railway.app](https://railway.app))
 - GitHub repository connected to Railway
-- Required API keys (Wolfram Alpha, OpenAI)
+- Required API keys (Wolfram Alpha, Groq)
 
 ### Deployment Steps
 
@@ -26,11 +26,19 @@ This guide explains how to deploy the STEM Service API to Railway.
    Go to your project → Variables tab and add:
 
    ```bash
-   # Required - OpenAI Configuration
-   OPENAI_API_KEY=your_openai_api_key_here
+   # Required - Groq Configuration (for math reasoning with openai/gpt-oss-120b)
+   # Get your API key from: https://console.groq.com
+   GROQ_API_KEY=your_groq_api_key_here
+   GROQ_MODEL=openai/gpt-oss-120b
+   GROQ_MAX_COMPLETION_TOKENS=8192
 
    # Required - Wolfram Alpha Configuration
    WOLFRAM_APP_ID=your_wolfram_app_id_here
+
+   # Optional - OpenAI Configuration (fallback only, not required)
+   # OPENAI_API_KEY=your_openai_api_key_here
+   # OPENAI_MODEL=gpt-4o
+   # OPENAI_MAX_TOKENS=4096
 
    # Optional - Server Configuration (Railway sets PORT automatically)
    # PORT is automatically provided by Railway
@@ -38,14 +46,10 @@ This guide explains how to deploy the STEM Service API to Railway.
    # LOG_LEVEL=INFO
 
    # Optional - Wolfram API URLs (defaults work fine)
-   # WOLFRAM_LLM_API_URL=https://api.wolframalpha.com/v1/llm-api
+   # WOLFRAM_LLM_API_URL=https://www.wolframalpha.com/api/v1/llm-api
    # WOLFRAM_FULL_RESULTS_API_URL=https://api.wolframalpha.com/v2/query
    # WOLFRAM_SHOW_STEPS_API_URL=https://api.wolframalpha.com/v2/query
    # WOLFRAM_LANGUAGE_API_URL=https://api.wolframalpha.com/v1/query
-
-   # Optional - OpenAI Model Configuration
-   # OPENAI_MODEL=gpt-4o
-   # OPENAI_MAX_COMPLETION_TOKENS=4096
 
    # Optional - Redis (if you add Redis service)
    # REDIS_URL=redis://host:port
@@ -134,7 +138,7 @@ Visit:
 4. Look for error messages
 
 **Common causes:**
-- Missing environment variables (especially `OPENAI_API_KEY`)
+- Missing environment variables (especially `GROQ_API_KEY` and `WOLFRAM_APP_ID`)
 - Invalid API keys
 - Network/firewall issues
 
@@ -144,6 +148,36 @@ Visit:
 - Ensure you're not setting PORT manually to 8000
 - Let Railway set the PORT environment variable
 - The app will automatically use Railway's port
+
+### Issue: Groq API Errors / Math Queries Failing
+
+**Error:** API requests work locally but fail in Railway deployment
+
+**Symptoms:**
+- Queries that worked in local testing fail in production
+- Missing or empty responses from `/api/v1/math/solve`
+- Logs show Groq-related errors
+
+**Solution:** This is usually caused by missing Groq environment variables.
+
+**Required variables:**
+1. Go to Railway Dashboard → Your Project → Variables
+2. Add the following:
+   ```bash
+   GROQ_API_KEY=your_groq_api_key_here
+   GROQ_MODEL=openai/gpt-oss-120b
+   GROQ_MAX_COMPLETION_TOKENS=8192
+   ```
+3. Get your Groq API key from: https://console.groq.com
+4. Railway will automatically redeploy after adding variables
+5. Check logs to verify successful deployment
+
+**To verify it's working:**
+```bash
+curl -X POST https://your-app.up.railway.app/api/v1/math/solve \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What is the derivative of x^3 + 2x^2 + 5?", "show_steps": true}'
+```
 
 ### Issue: CORS Errors
 
